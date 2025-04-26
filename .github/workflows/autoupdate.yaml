@@ -1,0 +1,72 @@
+name: Auto Update
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly
+  workflow_dispatch:
+  push:
+    paths-ignore: [README.md]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.compare.outputs.should_build }}
+      version: ${{ steps.get-tailscale.outputs.version }}
+
+    steps:
+      - name: Get latest Tailscale release
+        id: get-tailscale
+        run: |
+          latest=$(curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | jq -r .tag_name)
+          echo "version=${latest#v}" >> $GITHUB_ENV
+          echo "::set-output name=version::${latest#v}"
+
+      - name: Compare versions
+        id: compare-versions
+        run: |
+          repo_version=$(git describe --tags --abbrev=0 || echo "none")
+          if [[ "$repo_version" != "v${{ env.version }}" ]]; then
+            echo "::set-output name=should_build::true"
+          else
+            echo "::set-output name=should_build::false"
+          fi
+
+  build:
+    needs: check-version
+    if: needs.check-version.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [mips, mipsle, mips64, mips64le, ARMv6, ARMv7, arm64, amd64, 386]
+
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build for ${{ matrix.arch }}
+        run: ./build.sh ${{ needs.check-version.outputs.version }} ${{ matrix.arch }}
+
+      - name: Upload tar.gz artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.arch }}
+          path: "*.tar.gz"
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/**/*.tar.gz
+          tag_name: ${{ github.ref_name }}
