@@ -81,7 +81,9 @@ jobs:
           path: ./artifacts
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: ncipollo/release-action@v1
         with:
-          files: ./artifacts/**/*.tar.gz
-          tag_name: ${{ github.ref_name }}
+          artifacts: './artifacts/**/*.tar.gz'
+          tag: v${{ needs.check-version.outputs.version }}
+          body: |
+            Auto Update to v${{ needs.check-version.outputs.version }}
