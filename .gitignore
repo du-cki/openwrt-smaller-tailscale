@@ -1,0 +1,3 @@
+# don't want to accidentally push any compiled binaries
+*.tar.gz
+*.combined

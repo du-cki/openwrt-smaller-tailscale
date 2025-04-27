@@ -10,41 +10,41 @@ on:
 jobs:
   check-version:
     runs-on: ubuntu-latest
+
     outputs:
       should_build: ${{ steps.compare-versions.outputs.should_build }}
-      version: ${{ steps.get-tailscale.outputs.version }}
+      version: ${{ steps.get-tailscale-release-version.outputs.version }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get latest Tailscale release
-        id: get-tailscale
+      - name: Get latest Tailscale release version
+        id: get-tailscale-release-version
         run: |
           latest=$(curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | jq -r .tag_name)
           echo "version=${latest#v}" >> $GITHUB_OUTPUT
 
       - name: Compare versions
         id: compare-versions
+        env:
+          version: ${{ steps.get-tailscale-release-version.outputs.version }}
         run: |
           repo_version=$(git describe --tags --abbrev=0 || echo "none")
-          if [[ "$repo_version" != "v${{ env.version }}" ]]; then
+          if [[ "$repo_version" != "v${version}" ]]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
           fi
 
   build:
-    needs: check-version
+    needs: [check-version]
     if: |
       needs.check-version.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [mips, mipsle, mips64, mips64le, ARMv6, ARMv7, arm64, amd64, 386]
-
-    outputs:
-      version: ${{ steps.set-version.outputs.version }}
+        arch: [mips, mipsle, ARMv6, ARMv7, arm64, amd64, 386] # mips64, mips64le
 
     steps:
       - name: Checkout code
@@ -64,25 +64,25 @@ jobs:
       - name: Build for ${{ matrix.arch }}
         run: ./build.sh ${{ needs.check-version.outputs.version }} ${{ matrix.arch }}
 
-  #     - name: Upload tar.gz artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: build-${{ matrix.arch }}
-  #         path: "*.tar.gz"
+      - name: Upload built artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.arch }}
+          path: "*.tar.gz"
 
-  # release:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Download all artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         path: ./artifacts
+  release:
+    needs: [check-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
 
-  #     - name: Create GitHub Release
-  #       uses: ncipollo/release-action@v1
-  #       with:
-  #         artifacts: './artifacts/**/*.tar.gz'
-  #         tag: v${{ needs.check-version.outputs.version }}
-  #         body: |
-  #           Auto Update to v${{ needs.check-version.outputs.version }}
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: './artifacts/**/*.tar.gz'
+          tag: v${{ needs.check-version.outputs.version }}
+          body: |
+            Auto Update to v${{ needs.check-version.outputs.version }}
