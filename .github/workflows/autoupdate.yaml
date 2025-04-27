@@ -23,16 +23,15 @@ jobs:
         run: |
           latest=$(curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | jq -r .tag_name)
           echo "version=${latest#v}" >> $GITHUB_ENV
-          echo "::set-output name=version::${latest#v}"
 
       - name: Compare versions
         id: compare-versions
         run: |
           repo_version=$(git describe --tags --abbrev=0 || echo "none")
           if [[ "$repo_version" != "v${{ env.version }}" ]]; then
-            echo "::set-output name=should_build::true"
+          echo "should_build=true" >> $GITHUB_ENV
           else
-            echo "::set-output name=should_build::false"
+            echo "should_build=false" >> $GITHUB_ENV
           fi
 
   build:
@@ -56,8 +55,9 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.4'
-          cache: 'go'
-
+          cache: true
+          cache-dependency-path: go.sum
+          
       - name: Install UPX
         run: |
           sudo apt-get update
