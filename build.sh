@@ -11,11 +11,11 @@ if [ -z "$VERSION" ] || [ -z "$ARCH" ]; then
 fi
 
 case "$ARCH" in
-  ARMv6)
+  armv6)
     ARCH="arm"
     GOARM="6"
     ;;
-  ARMv7)
+  armv7)
     ARCH="arm"
     GOARM="7"
     ;;
