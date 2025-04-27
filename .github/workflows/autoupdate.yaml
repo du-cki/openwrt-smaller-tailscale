@@ -22,16 +22,16 @@ jobs:
         id: get-tailscale
         run: |
           latest=$(curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | jq -r .tag_name)
-          echo "version::${latest#v}" >> $GITHUB_ENV
+          echo "version=${latest#v}" >> $GITHUB_OUTPUT
 
       - name: Compare versions
         id: compare-versions
         run: |
           repo_version=$(git describe --tags --abbrev=0 || echo "none")
           if [[ "$repo_version" != "v${{ env.version }}" ]]; then
-            echo "should_build::true" >> $GITHUB_ENV
+            echo "should_build=true" >> $GITHUB_OUTPUT
           else
-            echo "should_build::false" >> $GITHUB_ENV
+            echo "should_build=false" >> $GITHUB_OUTPUT
           fi
 
   build:
