@@ -2,7 +2,6 @@ set -eo pipefail
 
 VERSION=$1
 ARCH=$2
-GOARM=${3:-} # optional
 
 OS="linux"
 
@@ -10,6 +9,20 @@ if [ -z "$VERSION" ] || [ -z "$ARCH" ]; then
   echo "Usage: $0 <version> <arch> [goarm]"
   exit 1
 fi
+
+case "$ARCH" in
+  ARMv6)
+    ARCH="arm"
+    GOARM="6"
+    ;;
+  ARMv7)
+    ARCH="arm"
+    GOARM="7"
+    ;;
+  *)
+    GOARM=""
+    ;;
+esac
 
 WORKDIR=$(mktemp -d)
 echo "→ Cloning into $WORKDIR"

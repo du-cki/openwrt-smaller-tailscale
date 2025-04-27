@@ -41,8 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [mips]
-        #, mipsle, mips64, mips64le, ARMv6, ARMv7, arm64, amd64, 386]
+        arch: [mips, mipsle, mips64, mips64le, ARMv6, ARMv7, arm64, amd64, 386]
 
     outputs:
       version: ${{ steps.set-version.outputs.version }}
@@ -65,25 +64,25 @@ jobs:
       - name: Build for ${{ matrix.arch }}
         run: ./build.sh ${{ needs.check-version.outputs.version }} ${{ matrix.arch }}
 
-      - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ matrix.arch }}
-          path: "*.tar.gz"
+  #     - name: Upload tar.gz artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: build-${{ matrix.arch }}
+  #         path: "*.tar.gz"
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: ./artifacts
+  # release:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download all artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         path: ./artifacts
 
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: './artifacts/**/*.tar.gz'
-          tag: v${{ needs.check-version.outputs.version }}
-          body: |
-            Auto Update to v${{ needs.check-version.outputs.version }}
+  #     - name: Create GitHub Release
+  #       uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: './artifacts/**/*.tar.gz'
+  #         tag: v${{ needs.check-version.outputs.version }}
+  #         body: |
+  #           Auto Update to v${{ needs.check-version.outputs.version }}
