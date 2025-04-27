@@ -5,7 +5,7 @@ on:
     - cron: "0 0 * * 0" # Weekly
   workflow_dispatch:
   push:
-    paths-ignore: [README.md]
+    paths-ignore: [README.md, .gitignore]
 
 jobs:
   check-version:
