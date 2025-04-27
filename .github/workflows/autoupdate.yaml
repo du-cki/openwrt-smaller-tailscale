@@ -13,14 +13,14 @@ jobs:
 
     outputs:
       should_build: ${{ steps.compare-versions.outputs.should_build }}
-      version: ${{ steps.get-tailscale-release-version.outputs.version }}
+      version: ${{ steps.tailscale-release.outputs.version }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get latest Tailscale release version
-        id: get-tailscale-release-version
+      - name: Get latest Tailscale release
+        id: tailscale-release
         run: |
           latest=$(curl -s https://api.github.com/repos/tailscale/tailscale/releases/latest | jq -r .tag_name)
           echo "version=${latest#v}" >> $GITHUB_OUTPUT
@@ -28,7 +28,7 @@ jobs:
       - name: Compare versions
         id: compare-versions
         env:
-          version: ${{ steps.get-tailscale-release-version.outputs.version }}
+          version: ${{ steps.tailscale-release.outputs.version }}
         run: |
           repo_version=$(git describe --tags --abbrev=0 || echo "none")
           if [[ "$repo_version" != "v${version}" ]]; then
@@ -36,6 +36,7 @@ jobs:
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
           fi
+
   build:
     needs: [check-version]
     if: |
