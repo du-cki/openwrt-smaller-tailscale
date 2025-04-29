@@ -19,7 +19,11 @@ case "$ARCH" in
     ARCH="arm"
     GOARM="7"
     ;;
+  mips | mipsle)
+    GOMIPS="softfloat"
+    ;;
   *)
+    GOMIPS=""
     GOARM=""
     ;;
 esac
@@ -35,11 +39,25 @@ git -c transfer.progress=0 -c advice.detachedHead=false \
 BASE_NAME="tailscale_${VERSION}_${ARCH}${GOARM:+_$GOARM}"
 
 BINARY="$BASE_NAME.combined"
-echo "→ Building for $OS/$ARCH${GOARM:+ (GOARM=$GOARM)} ($BINARY)"
+echo "→ Building for $OS/$ARCH${GOARM:+ (GOARM=$GOARM)}${GOMIPS:+ (GOMIPS="$GOMIPS")} ($BINARY)"
 
-GOOS=$OS GOARCH=$ARCH GOARM=$GOARM go build \
-  -C "$WORKDIR/tailscale" -o "$WORKDIR/$BINARY" -tags ts_include_cli -ldflags="-s -w" \
-  ./cmd/tailscaled >/dev/null
+env_vars=(
+  GOOS="$OS"
+  GOARCH="$ARCH"
+)
+
+[ -n "$GOMIPS" ] && env_vars+=(GOMIPS="$GOMIPS")
+[ -n "$GOARM" ] && env_vars+=(GOARM="$GOARM")
+
+env "${env_vars[@]}" \
+  go build \
+    -C "$WORKDIR/tailscale" \
+    -o "$WORKDIR/$BINARY" \
+    -tags netgo,ts_include_cli \
+    -ldflags="-s -w -extldflags=-static" \
+    -trimpath \
+    -buildvcs=false \
+    ./cmd/tailscaled >/dev/null
 
 SIZE=$(du -h "$WORKDIR/$BINARY" | awk '{print $1}')
 echo "✓ Built: $BINARY ($SIZE)"
@@ -58,4 +76,3 @@ FINAL="$BASE_NAME.tar.gz"
 tar -czf "./$FINAL" -C "$WORKDIR/fs" .
 
 echo "✓ Successfully built $FINAL"
-

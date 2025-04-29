@@ -31,7 +31,7 @@ jobs:
           version: ${{ steps.tailscale-release.outputs.version }}
         run: |
           repo_version=$(git describe --tags --abbrev=0 || echo "none")
-          if [[ "$repo_version" != "v${version}" ]]; then
+          if [[ "${repo_version}" != "v${version}" ]]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
