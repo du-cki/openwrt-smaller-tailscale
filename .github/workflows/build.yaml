@@ -17,7 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [mips, mipsle, armv6, armv7, arm64, amd64, 386] # mips64, mips64le
+        # cannot UPX compress these versions, so I'm not building for it:
+        # mips64, mips64le 
+        arch: [mips, mipsle, armv6, armv7, arm64, amd64, 386] 
 
     steps:
       - name: Checkout code
