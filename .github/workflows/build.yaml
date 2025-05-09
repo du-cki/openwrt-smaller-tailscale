@@ -15,6 +15,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       matrix:
         # cannot UPX compress these versions, so I'm not building for it:
