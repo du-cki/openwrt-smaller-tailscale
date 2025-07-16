@@ -1,7 +1,7 @@
 ## OpenWRT Smaller Tailscale
 
 > [!WARNING]
-> This script generates binaries automatically and does not come with any warranty. As of the time of writing, `Tailscale v1.84.2` works fine on `Xiaomi Mi Router 4A Gigabit Edition` running `OpenWrt 22.03.2 r19803-9a599fee93`. Proceed with caution and use this software at your own risk.
+> This script generates binaries automatically and does not come with any warranty. As of the time of writing, `Tailscale v1.84.2` works fine on `Xiaomi Mi Router 4A Gigabit Edition` (≈8512 KiB storage) running `OpenWrt 22.03.2 r19803-9a599fee93`. Proceed with caution and use this software at your own risk.
 
 > [!NOTE]
 > This project is not affiliated with Tailscale. Use at your own risk.
