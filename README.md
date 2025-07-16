@@ -1,13 +1,12 @@
 ## OpenWRT Smaller Tailscale
 
 > [!WARNING]
-> This project generates binaries automatically and does not come with any warranty. As of the time of writing, `Tailscale v1.84.2` works fine on `Xiaomi Mi Router 4A Gigabit Edition` running `OpenWrt 22.03.2 r19803-9a599fee93`. Proceed with caution and use this software at your own risk. This project is not affiliated with Tailscale. Use at your own risk.
+> This script generates binaries automatically and does not come with any warranty. As of the time of writing, `Tailscale v1.84.2` works fine on `Xiaomi Mi Router 4A Gigabit Edition` running `OpenWrt 22.03.2 r19803-9a599fee93`. Proceed with caution and use this software at your own risk. 
+> This project is not affiliated with Tailscale. Use at your own risk.
 
----
+## Installation
 
-### Installation
-
-1. Update packages & install required dependencies:
+1. Update packages & Install required dependencies:
 
    ```sh
    opkg update
@@ -40,9 +39,9 @@
    /etc/init.d/tailscale enable
    ls /etc/rc.d/S*tailscale*  # should show an entry
    ```
----
 
-### Final Setup (Required via LuCI)
+
+## Final Setup (Required via LuCI)
 
 To finish the integration, do the following in the **LuCI web interface**:
 
