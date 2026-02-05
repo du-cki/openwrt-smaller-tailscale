@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Get latest Tailscale release
         id: tailscale-release
@@ -28,11 +31,10 @@ jobs:
         env:
           version: ${{ steps.tailscale-release.outputs.version }}
         run: |
-          repo_version=$(git describe --tags --abbrev=0 || echo "none")
+          repo_version=$(git tag --sort=-v:refname | head -n 1)
+
           if [[ "${repo_version}" != "v${version}" ]]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
-          else
-            echo "should_build=false" >> $GITHUB_OUTPUT
           fi
 
   build:

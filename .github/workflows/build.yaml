@@ -18,9 +18,10 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        # cannot UPX compress these versions, so I'm not building for it:
-        # mips64, mips64le 
-        arch: [mips, mipsle, armv6, armv7, arm64, amd64, 386] 
+        # mips64, mips64le
+        # cannot UPX compress these versions, so I'm not building for it
+        # https://github.com/upx/upx/issues/272#issuecomment-1250010942
+        arch: [mips, mipsle, armv6, armv7, arm64, amd64, 386]
 
     steps:
       - name: Checkout code
@@ -29,9 +30,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.24.2'
+          go-version: "1.24.2"
           cache: false
-          
+
       - name: Install UPX
         run: |
           sudo apt-get update
@@ -58,5 +59,10 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: './artifacts/**/*.tar.gz'
+          artifacts: "./artifacts/**/*.tar.gz"
           tag: v${{ inputs.version }}
+          body: |
+            Automated build for Tailscale `v${{ inputs.version }}`.
+
+            - [Changelog](https://tailscale.com/changelog)
+            - [Source Tag (Github)](github.com/tailscale/tailscale/releases/tag/v${{ inputs.version }})
