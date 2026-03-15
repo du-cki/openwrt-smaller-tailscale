@@ -65,4 +65,4 @@ jobs:
             Automated build for Tailscale `v${{ inputs.version }}`.
 
             - [Changelog](https://tailscale.com/changelog)
-            - [Source Tag (Github)](github.com/tailscale/tailscale/releases/tag/v${{ inputs.version }})
+            - [Source Tag (Github)](https://github.com/tailscale/tailscale/releases/tag/v${{ inputs.version }})
