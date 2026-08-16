@@ -18,10 +18,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        # mips64, mips64le
-        # cannot UPX compress these versions, so I'm not building for it
-        # https://github.com/upx/upx/issues/272#issuecomment-1250010942
-        arch: [mips, mipsle, armv6, armv7, arm64, amd64, 386]
+        arch: [mips, mipsle, mips64, mips64le, armv5, armv6, armv7, arm64, amd64, 386, riscv64]
 
     steps:
       - name: Checkout code
@@ -35,8 +32,13 @@ jobs:
 
       - name: Install UPX
         run: |
-          sudo apt-get update
-          sudo apt-get install -y upx-ucl
+          UPX_VER=5.2.0
+          FILE_NAME=upx-${UPX_VER}-amd64_linux
+          
+          curl -LO https://github.com/upx/upx/releases/download/v${UPX_VER}/${FILE_NAME}.tar.xz
+          tar -xf ${FILE_NAME}.tar.xz
+          sudo install -m755 ${FILE_NAME}/upx /usr/local/bin/upx
+          upx --version
 
       - name: Build for ${{ matrix.arch }}
         run: ./build.sh ${{ inputs.version }} ${{ matrix.arch }}
