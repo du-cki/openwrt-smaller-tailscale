@@ -67,6 +67,7 @@ env_vars=(
 )
 
 [ -n "$GOMIPS" ] && env_vars+=(GOMIPS="$GOMIPS")
+[ -n "$GOMIPS64" ] && env_vars+=(GOMIPS64="$GOMIPS64")
 [ -n "$GOARM" ] && env_vars+=(GOARM="$GOARM")
 
 eval "$(
